@@ -1,12 +1,12 @@
 x-environments:
   # go -------------------------------------------------------------------------
   x-1: &go
+    container_name: ${BE_REPO}
     env_file: # ".env"以外のファイル名では参照しない。また環境ごとに別で配置したenvファイルを各々で読み込みもできなかった。
       - .env
     build:
       context: ../
       dockerfile: ./.devcontainer/backend/Dockerfile
-    container_name: go_${BE_REPO}
     volumes:
       - ${BE_LOCAL_WS}/:/home/vscode/workspace:cached
       - ~/.ssh:/home/vscode/.ssh:ro
@@ -51,6 +51,7 @@ x-environments:
       - turquoise_net
   # next -----------------------------------------------------------------------
   x-2: &next
+    container_name: ${FE_REPO}
     env_file: # ".env"以外のファイル名では参照しない。また環境ごとに別で配置したenvファイルを各々で読み込みもできなかった。
       - .env
     build:
@@ -63,7 +64,6 @@ x-environments:
         REPO_NAME: ${FE_REPO}
         LOCALUNAME: ${LOCALUNAME}
         LOCALUPASS: ${LOCALUPASS}
-    container_name: node_${FE_REPO}
     environment:
       TS_ACCEPT_DNS: true
     entrypoint: >
