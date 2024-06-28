@@ -8,7 +8,7 @@ x-environments:
       dockerfile: ./.devcontainer/backend/Dockerfile
     container_name: go_${BE_REPO}
     volumes:
-      - ${BE_LOCAL_WS}/:/home/vscode/workspace/backend:cached
+      - ${BE_LOCAL_WS}/:/home/vscode/workspace:cached
       - ~/.ssh:/home/vscode/.ssh:ro
       # -----------------------------
       - /tmp/.X11-unix:/tmp/.X11-unix
@@ -70,7 +70,7 @@ x-environments:
       entrypoint.sh
     command: ["dumb-init", "/bin/sh"]
     volumes:
-      - ${FE_LOCAL_WS}/:/home/${LOCALUNAME}/workspace/backend:cached
+      - ${FE_LOCAL_WS}/:/home/${LOCALUNAME}/workspace:cached
       - ~/.ssh:/home/${LOCALUNAME}/.ssh:ro
     labels:
       - devcontainer.local_folder=${FE_LOCAL_WS}
