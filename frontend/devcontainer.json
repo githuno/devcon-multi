@@ -1,0 +1,9 @@
+{
+  "dockerComposeFile": "../compose.yml",
+  "service": "frontend",
+  "workspaceFolder": "/home/vscode/workspace",
+  "forwardPorts": [
+    8085
+  ],
+  "overrideCommand": false
+}

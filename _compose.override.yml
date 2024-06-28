@@ -1,0 +1,7 @@
+services:  
+  # backend:
+  #   <<: *next  # <----- override前のアンカーは参照できなかった
+
+# docker-compose.override.ymlでcomposeファイルを上書きする:https://zenn.dev/yumemi_inc/articles/4c54f980668eec
+# Docker Compose の設定は上書きできる:https://qiita.com/hoto17296/items/a8a85d5244f46c119278
+# V3以降はdocker-compose.ymlで外部ファイルを参照出来ない！:https://qiita.com/miyabisun/items/ea702170ffe8250be440

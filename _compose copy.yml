@@ -1,0 +1,88 @@
+services:
+  backend:
+    env_file:
+      - .env
+    build:
+      context: ../
+      dockerfile: ./.devcontainer/backend/Dockerfile
+    container_name: go_${BE_REPO}
+    volumes:
+      - ${BE_LOCAL_WS}/:/home/vscode/workspace/backend:cached
+      - ~/.ssh:/home/vscode/.ssh:ro
+      # -----------------------------
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /run/user/1000/pulse/native:/tmp/pulse/native
+      - /home/vscode/.config/pulse/cookie:/tmp/pulse/cookie:ro
+      - /var/lib/dbus:/var/lib/dbus
+      - /var/run/dbus:/var/run/dbus
+      - /etc/machine-id:/etc/machine-id
+    environment:
+      # -----------------------------
+      - DISPLAY=:0
+      - WAYLAND_DISPLAY=wayland-0
+      - PULSE_COOKIE=/tmp/pulse/cookie
+      - PULSE_SERVER=unix:/tmp/pulse/native
+      - NOVNC_PORT=8085
+      - VNC_PORT=5900
+      - QEMU_OPTS=-vnc :0 --usbdevice tablet
+    devices:
+      # -----------------------------
+      - /dev/dri:/dev/dri
+      - /dev/snd:/dev/snd
+      - /dev/input:/dev/input
+    privileged: true
+    cap_add:
+      - SYS_PTRACE
+    init: true
+    labels:
+      - devcontainer.local_folder=${BE_LOCAL_WS}
+      - devcontainer.config_file=./backend/devcontainer.json
+    entrypoint: ["/home/set_uid.sh"]
+    command:
+      [
+        "/bin/sh",
+        "-c",
+        'echo Container started ; trap "exit 0" 15; while sleep 1 & wait $!; do :; done',
+      ]
+    ports:
+      - ${BE_PORT}:${BE_PORT}
+    networks:
+      - turquoise_net
+# ------------------------------------------------------------------------------
+  frontend:
+    env_file: # ".env"以外のファイル名では参照しない。"docker compose config"コマンドで確認可能
+      - .env
+    build:
+      context: ../
+      dockerfile: ./.devcontainer/frontend/Dockerfile
+      args: # ビルド時に使用する変数（in Dockerfile）
+        OS_VER: ${OS_VER}
+        NODE_VER: ${NODE_VER}
+        NVM_DIR: /home/${LOCALUNAME}/.nvm
+        REPO_NAME: ${FE_REPO}
+        LOCALUNAME: ${LOCALUNAME}
+        LOCALUPASS: ${LOCALUPASS}
+    container_name: node_${FE_REPO}
+    environment:
+      TS_ACCEPT_DNS: true
+    entrypoint: >
+      entrypoint.sh
+    command: ["dumb-init", "/bin/sh"]
+    volumes:
+      - ${FE_LOCAL_WS}/:/home/${LOCALUNAME}/workspace/backend:cached
+      - ~/.ssh:/home/${LOCALUNAME}/.ssh:ro
+    labels:
+      - devcontainer.local_folder=${FE_LOCAL_WS}
+      - devcontainer.config_file=./frontend/devcontainer.json
+    cap_add:
+      - SYS_ADMIN
+    tty: true
+    ports:
+      - ${FE_PORT}:${FE_PORT}
+      - ${PORT_CODE}:${PORT_CODE}
+    networks:
+      - turquoise_net
+# ------------------------------------------------------------------------------
+networks:
+  turquoise_net:
+    driver: bridge
