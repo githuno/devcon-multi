@@ -1,7 +1,7 @@
 ARG OS_VER
 FROM ubuntu:${OS_VER}
 # ------------------------------------------------------------------------------
-ARG NODE_VER NVM_DIR REPO_NAME LOCALUNAME LOCALUPASS
+ARG NODE_VER NVM_DIR REPO_NAME LOCALUNAME LOCALUPASS COMPOSE_PROJECT_NAME
 ENV NODE_VER=$NODE_VER NVM_DIR=$NVM_DIR
 
 # locale要求をスルー：https://qiita.com/mochi_yu2/items/af80a3adc7ff70e58807
@@ -13,13 +13,13 @@ RUN apt update && apt install -y --no-install-recommends \
    && apt clean \
    && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /${REPO_NAME}
+WORKDIR /workspaces/${COMPOSE_PROJECT_NAME}
 
 # home shell group を設定
 RUN useradd -m -s /bin/bash ${LOCALUNAME} -G sudo \
     && echo ${LOCALUNAME}:${LOCALUPASS} | chpasswd \
     && mkdir /run/user \
-    && chown -R ${LOCALUNAME} /${REPO_NAME}  /usr/local/ /run/user
+    && chown -R ${LOCALUNAME} /workspaces  /usr/local/ /run/user
 
 COPY \
     --chown=${LOCALUNAME} \

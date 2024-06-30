@@ -6,14 +6,18 @@ x-environments:
       - .env
     build:
       context: ../
-      dockerfile: ./.devcontainer/backend/Dockerfile
+      dockerfile: ./.devcontainer/${BE_REPO}/Dockerfile
+      args:
+        COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+        USERNAME: ${USERNAME}
+        BE_REPO: ${BE_REPO}
     volumes:
-      - ${BE_LOCAL_WS}/:/home/vscode/workspace:cached
-      - ~/.ssh:/home/vscode/.ssh:ro
+      - ../${BE_REPO}/:/workspaces/${COMPOSE_PROJECT_NAME}:cached
+      - $HOME/.ssh:/home/${USERNAME}/.ssh:ro
       # -----------------------------
       - /tmp/.X11-unix:/tmp/.X11-unix
       - /run/user/1000/pulse/native:/tmp/pulse/native
-      - /home/vscode/.config/pulse/cookie:/tmp/pulse/cookie:ro
+      - /home/${USERNAME}/.config/pulse/cookie:/tmp/pulse/cookie:ro
       - /var/lib/dbus:/var/lib/dbus
       - /var/run/dbus:/var/run/dbus
       - /etc/machine-id:/etc/machine-id
@@ -36,8 +40,8 @@ x-environments:
       - SYS_PTRACE
     init: true
     labels:
-      - devcontainer.local_folder=${BE_LOCAL_WS}
-      - devcontainer.config_file=./backend/devcontainer.json
+      - devcontainer.local_folder=../${BE_REPO}
+      - devcontainer.config_file=./${BE_REPO}/devcontainer.json
     entrypoint: ["/home/set_uid.sh"]
     command:
       [
@@ -48,7 +52,7 @@ x-environments:
     ports:
       - ${BE_PORT}:${BE_PORT}
     networks:
-      - turquoise_net
+      - app_net
   # next -----------------------------------------------------------------------
   x-2: &next
     container_name: ${FE_REPO}
@@ -56,8 +60,9 @@ x-environments:
       - .env
     build:
       context: ../
-      dockerfile: ./.devcontainer/frontend/Dockerfile
+      dockerfile: ./.devcontainer/${FE_REPO}/Dockerfile
       args: # ビルド時に使用する変数（in Dockerfile）
+        COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
         OS_VER: ${OS_VER}
         NODE_VER: ${NODE_VER}
         NVM_DIR: /home/${LOCALUNAME}/.nvm
@@ -70,10 +75,10 @@ x-environments:
       entrypoint.sh
     command: ["dumb-init", "/bin/sh"]
     volumes:
-      - ${FE_LOCAL_WS}/:/home/${LOCALUNAME}/workspace:cached
-      - ~/.ssh:/home/${LOCALUNAME}/.ssh:ro
+      - ../${FE_REPO}/:/workspaces/${COMPOSE_PROJECT_NAME}:cached
+      - $HOME/.ssh:/home/${LOCALUNAME}/.ssh:ro
     labels:
-      - devcontainer.local_folder=${FE_LOCAL_WS}
+      - devcontainer.local_folder=../${FE_REPO}
       - devcontainer.config_file=./frontend/devcontainer.json
     cap_add:
       - SYS_ADMIN
@@ -82,13 +87,36 @@ x-environments:
       - ${FE_PORT}:${FE_PORT}
       - ${PORT_CODE}:${PORT_CODE}
     networks:
-      - turquoise_net
+      - app_net
+  # nginx ----------------------------------------------------------------------
+  x-3: &nginx
+    container_name: ${PROXY_REPO}
+    build:
+      context: ../
+      dockerfile: ./.devcontainer/${PROXY_REPO}/Dockerfile
+      args:
+        PROXY_REPO: ${PROXY_REPO}
+        FE_REPO: ${FE_REPO}
+        FE_PORT: ${FE_PORT}
+        BE_REPO: ${BE_REPO}
+        BE_PORT: ${BE_PORT}
+    volumes:
+      - ../${PROXY_REPO}/log:/var/log/nginx
+    ports:
+      - ${PX_PORT}:80
+    networks:
+      - app_net
 # ---------------------------------------"docker compose config"コマンドで確認可能
 services:
+  proxy:
+    <<: *nginx
+    depends_on:
+      - frontend
+      - backend
   backend:
     <<: *go
   frontend:
     <<: *next
 networks:
-  turquoise_net:
+  app_net:
     driver: bridge

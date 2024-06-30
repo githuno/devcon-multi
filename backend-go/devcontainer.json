@@ -1,0 +1,26 @@
+{
+  "name": "backend_dev",
+  "dockerComposeFile": "../compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}_devcontainer",
+  "forwardPorts": [
+    8085
+  ],
+  "overrideCommand": false,
+  // 変数について：https://code.visualstudio.com/docs/editor/variables-reference
+  // remoteUserについて：https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
+  // remoteUserについて：https://zenn.dev/bells17/articles/remote-ssh-devcontainer
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ],
+      "settings": {
+        "security_opt": [
+          "seccomp=unconfined"
+        ]
+      }
+    }
+  }
+}

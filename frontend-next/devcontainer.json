@@ -1,0 +1,8 @@
+{
+  "name": "frontend_dev",
+  "dockerComposeFile": "../compose.yml",
+  "service": "frontend",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}_devcontainer",
+  "forwardPorts": [],
+  "overrideCommand": false
+}
