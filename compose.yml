@@ -100,6 +100,8 @@ x-environments:
         FE_PORT: ${FE_PORT}
         BE_REPO: ${BE_REPO}
         BE_PORT: ${BE_PORT}
+    entrypoint: >
+      tini -- entrypoint.sh
     volumes:
       - ../${PROXY_REPO}/log:/var/log/nginx
     ports:
