@@ -12,4 +12,8 @@ COPY ./.devcontainer/${PROXY_REPO}/default.conf.template /etc/nginx/conf.d/defau
 # 環境変数を置換するためのエントリポイントスクリプトを追加
 COPY --chmod=764 ./.devcontainer/${PROXY_REPO}/entrypoint.sh /usr/bin/
 
+# tailscale
+RUN curl -fsSL https://tailscale.com/install.sh | sh \
+    && mkdir /var/run/tailscale/
+
 ENTRYPOINT ["entrypoint.sh"]
