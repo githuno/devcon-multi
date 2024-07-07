@@ -2,7 +2,7 @@
   "name": "backend_dev",
   "dockerComposeFile": "../compose.yml",
   "service": "backend",
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}_devcontainer",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "forwardPorts": [
     8085
   ],
